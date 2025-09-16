@@ -250,56 +250,6 @@ export function ContasAtivasManager() {
     }
   }
 
-  const resetForm = () => {
-    setFormData({ name: '', value: '', color: 'bg-blue-500' })
-    setEditingAccount(null)
-    setValueInputType('manual')
-    setTronAddress('')
-    setTronBalances(null)
-    setSelectedToken('')
-    setLogoFile(null)
-    setLogoPreview('')
-    setIsLoadingTron(false)
-  }
-
-  const handleTronAddressSubmit = async () => {
-    if (!tronAddress.trim()) return
-    
-    setIsLoadingTron(true)
-    try {
-      const balances = await getTronBalance(tronAddress.trim())
-      setTronBalances(balances)
-      
-      // Auto-selecionar TRX se disponível
-      if (balances.TRX > 0) {
-        setSelectedToken('TRX')
-        setFormData(prev => ({ ...prev, value: balances.TRX.toString() }))
-      }
-    } catch (error) {
-      console.error('Erro ao buscar saldo Tron:', error)
-      alert('Erro ao buscar saldo. Verifique o endereço e tente novamente.')
-    } finally {
-      setIsLoadingTron(false)
-    }
-  }
-
-  const handleTokenSelect = (token: string, balance: number) => {
-    setSelectedToken(token)
-    setFormData(prev => ({ ...prev, value: balance.toString() }))
-  }
-
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setLogoFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setLogoPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   return (
     <div className="space-y-6">
       {/* Header com botão de adicionar */}
