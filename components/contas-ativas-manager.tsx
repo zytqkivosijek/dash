@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { IconPlus, IconPencil, IconTrash, IconCheck, IconX } from '@tabler/icons-react'
+import { IconPlus, IconPencil, IconTrash, IconCheck, IconX, IconLoader, IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -40,6 +40,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+
+import { getTronBalance } from '@/lib/tron-api'
 
 interface Account {
   id: number
@@ -124,6 +126,13 @@ export function ContasAtivasManager() {
 
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [editingAccount, setEditingAccount] = React.useState<Account | null>(null)
+  const [valueInputType, setValueInputType] = React.useState<'manual' | 'tron'>('manual')
+  const [isLoadingTron, setIsLoadingTron] = React.useState(false)
+  const [tronAddress, setTronAddress] = React.useState('')
+  const [tronBalances, setTronBalances] = React.useState<any>(null)
+  const [selectedToken, setSelectedToken] = React.useState<string>('')
+  const [logoFile, setLogoFile] = React.useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = React.useState<string>('')
   const [formData, setFormData] = React.useState({
     name: '',
     value: '',
@@ -195,6 +204,51 @@ export function ContasAtivasManager() {
   const resetForm = () => {
     setFormData({ name: '', value: '', color: 'bg-blue-500' })
     setEditingAccount(null)
+    setValueInputType('manual')
+    setTronAddress('')
+    setTronBalances(null)
+    setSelectedToken('')
+    setLogoFile(null)
+    setLogoPreview('')
+    setIsLoadingTron(false)
+  }
+
+  const handleTronAddressSubmit = async () => {
+    if (!tronAddress.trim()) return
+    
+    setIsLoadingTron(true)
+    try {
+      const balances = await getTronBalance(tronAddress.trim())
+      setTronBalances(balances)
+      
+      // Auto-selecionar TRX se disponível
+      if (balances.TRX > 0) {
+        setSelectedToken('TRX')
+        setFormData(prev => ({ ...prev, value: balances.TRX.toString() }))
+      }
+    } catch (error) {
+      console.error('Erro ao buscar saldo Tron:', error)
+      alert('Erro ao buscar saldo. Verifique o endereço e tente novamente.')
+    } finally {
+      setIsLoadingTron(false)
+    }
+  }
+
+  const handleTokenSelect = (token: string, balance: number) => {
+    setSelectedToken(token)
+    setFormData(prev => ({ ...prev, value: balance.toString() }))
+  }
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setLogoFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   return (
@@ -221,7 +275,7 @@ export function ContasAtivasManager() {
                 Preencha os dados da nova conta financeira
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
                 <Label htmlFor="name">Nome da Conta</Label>
                 <Input
@@ -231,38 +285,221 @@ export function ContasAtivasManager() {
                   placeholder="Ex: CONTA CORRENTE"
                 />
               </div>
+              
               <div>
-                <Label htmlFor="value">Valor (US$)</Label>
-                <Input
-                  id="value"
-                  type="number"
-                  step="0.01"
-                  value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="color">Cor</Label>
-                <Select value={formData.color} onValueChange={(value) => setFormData({ ...formData, color: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colorOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div className="flex items-center gap-2">
-                          <div className={`w-4 h-4 rounded-full ${option.value}`} />
-                          {option.label}
+                <Label>Aparência</Label>
+                <div className="space-y-3 mt-2">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="use-color"
+                        name="appearance"
+                        checked={!logoPreview}
+                        onChange={() => {
+                          setLogoFile(null)
+                          setLogoPreview('')
+                        }}
+                      />
+                      <Label htmlFor="use-color">Usar cor</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="use-logo"
+                        name="appearance"
+                        checked={!!logoPreview}
+                        onChange={() => {}}
+                      />
+                      <Label htmlFor="use-logo">Usar logo</Label>
+                    </div>
+                  </div>
+                  
+                  {!logoPreview ? (
+                    <div>
+                      <Label htmlFor="color">Cor</Label>
+                      <Select value={formData.color} onValueChange={(value) => setFormData({ ...formData, color: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {colorOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              <div className="flex items-center gap-2">
+                                <div className={`w-4 h-4 rounded-full ${option.value}`} />
+                                {option.label}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <img src={logoPreview} alt="Logo preview" className="w-8 h-8 rounded-full object-cover" />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setLogoFile(null)
+                          setLogoPreview('')
+                        }}
+                      >
+                        Remover logo
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {!logoPreview && (
+                    <div>
+                      <Label htmlFor="logo-upload" className="cursor-pointer">
+                        <div className="flex items-center gap-2 p-2 border border-dashed rounded-md hover:bg-accent">
+                          <IconUpload className="w-4 h-4" />
+                          <span className="text-sm">Clique para fazer upload do logo</span>
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </Label>
+                      <input
+                        id="logo-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleLogoUpload}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label>Como definir o valor?</Label>
+                <div className="space-y-3 mt-2">
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="manual-value"
+                        name="valueType"
+                        checked={valueInputType === 'manual'}
+                        onChange={() => {
+                          setValueInputType('manual')
+                          setTronBalances(null)
+                          setTronAddress('')
+                          setSelectedToken('')
+                        }}
+                      />
+                      <Label htmlFor="manual-value">Valor manual</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        id="tron-value"
+                        name="valueType"
+                        checked={valueInputType === 'tron'}
+                        onChange={() => {
+                          setValueInputType('tron')
+                          setFormData(prev => ({ ...prev, value: '' }))
+                        }}
+                      />
+                      <Label htmlFor="tron-value">Endereço Tron</Label>
+                    </div>
+                  </div>
+
+                  {valueInputType === 'manual' ? (
+                    <div>
+                      <Label htmlFor="value">Valor (US$)</Label>
+                      <Input
+                        id="value"
+                        type="number"
+                        step="0.01"
+                        value={formData.value}
+                        onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                        placeholder="0.00"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="tron-address">Endereço Tron</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="tron-address"
+                            value={tronAddress}
+                            onChange={(e) => setTronAddress(e.target.value)}
+                            placeholder="Ex: TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH"
+                          />
+                          <Button
+                            type="button"
+                            onClick={handleTronAddressSubmit}
+                            disabled={isLoadingTron || !tronAddress.trim()}
+                          >
+                            {isLoadingTron ? (
+                              <IconLoader className="w-4 h-4 animate-spin" />
+                            ) : (
+                              'Buscar'
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {tronBalances && (
+                        <div>
+                          <Label>Selecione o token</Label>
+                          <div className="space-y-2 mt-2 max-h-40 overflow-y-auto">
+                            {tronBalances.TRX > 0 && (
+                              <div
+                                className={`p-3 border rounded-md cursor-pointer hover:bg-accent ${
+                                  selectedToken === 'TRX' ? 'border-primary bg-accent' : ''
+                                }`}
+                                onClick={() => handleTokenSelect('TRX', tronBalances.TRX)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">TRX</span>
+                                  <span>{tronBalances.TRX.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                                </div>
+                              </div>
+                            )}
+                            {Object.entries(tronBalances.TRC20).map(([symbol, balance]) => (
+                              <div
+                                key={symbol}
+                                className={`p-3 border rounded-md cursor-pointer hover:bg-accent ${
+                                  selectedToken === symbol ? 'border-primary bg-accent' : ''
+                                }`}
+                                onClick={() => handleTokenSelect(symbol, balance as number)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">{symbol}</span>
+                                  <span>{(balance as number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {selectedToken && (
+                            <div className="mt-3">
+                              <Label htmlFor="selected-value">Valor selecionado (US$)</Label>
+                              <Input
+                                id="selected-value"
+                                type="number"
+                                step="0.01"
+                                value={formData.value}
+                                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                                placeholder="0.00"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => {
+                setIsAddDialogOpen(false)
+                resetForm()
+              }}>
                 Cancelar
               </Button>
               <Button onClick={handleAddAccount}>
