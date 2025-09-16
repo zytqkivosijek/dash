@@ -276,7 +276,17 @@ export function ContasAtivasManager() {
               <DialogDescription>
                 Preencha os dados da nova conta financeira
               </DialogDescription>
-              
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nome da Conta</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Ex: Conta Principal"
+                />
+              </div>
               
               <div>
                 <Label>Aparência</Label>
