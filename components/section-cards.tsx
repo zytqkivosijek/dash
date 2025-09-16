@@ -64,7 +64,7 @@ export function SectionCards({ totalAvailableBalance, totalCosts }: SectionCards
       </Card>
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
+          <CardDescription>Diferença Líquida</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             45,678
           </CardTitle>
