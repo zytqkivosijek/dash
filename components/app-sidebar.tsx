@@ -23,6 +23,7 @@ import { NavDocuments } from '@/components/nav-documents'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
+import { ThemeSelector } from '@/components/theme-selector'
 import {
   Sidebar,
   SidebarContent,
@@ -115,6 +116,12 @@ const data = {
     },
   ],
   navSecondary: [
+    {
+      title: "Temas",
+      url: "#",
+      icon: IconSettings,
+      component: ThemeSelector,
+    },
     {
       title: "Settings",
       url: "#",
