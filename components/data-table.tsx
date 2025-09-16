@@ -107,6 +107,14 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 
+interface Account {
+  id: number
+  name: string
+  value: number
+  percentage: number
+  color: string
+}
+
 export const schema = z.object({
   id: z.number(),
   header: z.string(),
@@ -339,8 +347,12 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function DataTable({
   data: initialData,
+  accountsData,
+  totalValue,
 }: {
   data: z.infer<typeof schema>[]
+  accountsData: Account[]
+  totalValue: number
 }) {
   const [data, setData] = React.useState(() => initialData)
   const [rowSelection, setRowSelection] = React.useState({})
@@ -480,7 +492,7 @@ export function DataTable({
         value="outline"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
-        <AccountsDistribution />
+        <AccountsDistribution accountsData={accountsData} totalValue={totalValue} />
       </TabsContent>
       <TabsContent
         value="past-performance"
