@@ -108,6 +108,9 @@ const costsData = [
 // Calcular o total dos custos
 const totalCosts = costsData.reduce((sum, cost) => sum + cost.value, 0)
 
+// Calcular a diferença líquida (Saldo disponível - Custos totais)
+const netDifference = totalValue - totalCosts
+
 export default function Page() {
   return (
     <SidebarProvider
@@ -124,7 +127,7 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards totalAvailableBalance={totalValue} totalCosts={totalCosts} />
+              <SectionCards totalAvailableBalance={totalValue} totalCosts={totalCosts} netDifference={netDifference} />
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
