@@ -18,6 +18,7 @@ export function AuthForm({
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState('')
   const [success, setSuccess] = React.useState('')
+  const [activeTab, setActiveTab] = React.useState('register')
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -89,148 +90,174 @@ export function AuthForm({
     }
   }
 
+  const handleEmailSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')
+    setSuccess('')
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+
+    try {
+      // Simular criação de conta com email
+      const user = register(email.split('@')[0], email, 'temp123')
+      
+      if (user) {
+        setSuccess('Conta criada com sucesso!')
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1000)
+      } else {
+        setError('Erro ao criar conta. Tente novamente.')
+      }
+    } catch (err) {
+      setError('Erro ao criar conta. Tente novamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className={cn("w-full max-w-md", className)} {...props}>
-      <Tabs defaultValue="login" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          {activeTab === 'register' ? 'Create an account' : 'Welcome back'}
+        </h1>
+        <p className="text-slate-400">
+          {activeTab === 'register' 
+            ? 'Enter your email below to create your account'
+            : 'Enter your credentials to access your account'
+          }
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="hidden">
+          <TabsTrigger value="register">Register</TabsTrigger>
           <TabsTrigger value="login">Login</TabsTrigger>
-          <TabsTrigger value="register">Registro</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="login">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle>Fazer Login</CardTitle>
-              <CardDescription>
-                Entre com suas credenciais para acessar o sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-username">Usuário</Label>
-                  <Input
-                    id="login-username"
-                    name="username"
-                    type="text"
-                    placeholder="admin"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password">Senha</Label>
-                  <Input
-                    id="login-password"
-                    name="password"
-                    type="password"
-                    placeholder="admin"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                {error && (
-                  <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                    {error}
-                  </div>
-                )}
-                
-                {success && (
-                  <div className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
-                    {success}
-                  </div>
-                )}
-                
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Entrando...' : 'Entrar'}
-                </Button>
-                
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Credenciais padrão:</p>
-                  <p><strong>Usuário:</strong> admin</p>
-                  <p><strong>Senha:</strong> admin</p>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+        <TabsContent value="register" className="space-y-4">
+          <form onSubmit={handleEmailSignup} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                name="email"
+                type="email"
+                placeholder="name@example.com"
+                required
+                disabled={isLoading}
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating account...' : 'Sign In with Email'}
+            </Button>
+          </form>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-700" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-slate-900 px-2 text-slate-400">Or continue with</span>
+            </div>
+          </div>
+          
+          <Button 
+            variant="outline" 
+            className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
+            disabled={isLoading}
+          >
+            🔒 SAML SSO
+          </Button>
+          
+          <div className="text-center text-xs text-slate-400 mt-6">
+            By clicking continue, you agree to our{' '}
+            <a href="#" className="underline hover:text-white">Terms of Service</a>
+            {' '}and{' '}
+            <a href="#" className="underline hover:text-white">Privacy Policy</a>.
+          </div>
+          
+          <div className="text-center text-sm text-slate-400 mt-4">
+            Already have an account?{' '}
+            <button 
+              type="button"
+              onClick={() => setActiveTab('login')}
+              className="text-purple-400 hover:text-purple-300 underline"
+            >
+              Sign in
+            </button>
+          </div>
         </TabsContent>
         
-        <TabsContent value="register">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle>Criar Conta</CardTitle>
-              <CardDescription>
-                Preencha os dados para criar uma nova conta
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-username">Usuário</Label>
-                  <Input
-                    id="register-username"
-                    name="username"
-                    type="text"
-                    placeholder="Seu nome de usuário"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-email">Email</Label>
-                  <Input
-                    id="register-email"
-                    name="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-password">Senha</Label>
-                  <Input
-                    id="register-password"
-                    name="password"
-                    type="password"
-                    placeholder="Sua senha"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-confirm-password">Confirmar Senha</Label>
-                  <Input
-                    id="register-confirm-password"
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="Confirme sua senha"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                
-                {error && (
-                  <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-                    {error}
-                  </div>
-                )}
-                
-                {success && (
-                  <div className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
-                    {success}
-                  </div>
-                )}
-                
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Criando conta...' : 'Criar Conta'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        <TabsContent value="login" className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                name="username"
+                type="text"
+                placeholder="Username"
+                required
+                disabled={isLoading}
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                name="password"
+                type="password"
+                placeholder="Password"
+                required
+                disabled={isLoading}
+                className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-400 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+          
+          <div className="text-center text-sm text-slate-400 mt-4">
+            <p className="mb-2">Credenciais padrão:</p>
+            <p><strong className="text-white">Usuário:</strong> admin</p>
+            <p><strong className="text-white">Senha:</strong> admin</p>
+          </div>
+          
+          <div className="text-center text-sm text-slate-400 mt-6">
+            Don't have an account?{' '}
+            <button 
+              type="button"
+              onClick={() => setActiveTab('register')}
+              className="text-purple-400 hover:text-purple-300 underline"
+            >
+              Sign up
+            </button>
+          </div>
         </TabsContent>
       </Tabs>
+      
+      {error && (
+        <div className="mt-4 text-sm text-red-400 bg-red-900/20 p-3 rounded-md border border-red-800">
+          {error}
+        </div>
+      )}
+      
+      {success && (
+        <div className="mt-4 text-sm text-green-400 bg-green-900/20 p-3 rounded-md border border-green-800">
+          {success}
+        </div>
+      )}
     </div>
   )
 }
