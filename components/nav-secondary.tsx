@@ -3,6 +3,7 @@
 import * as React from "react"
 import { type Icon } from "@tabler/icons-react"
 
+import { ThemeSelector } from '@/components/theme-selector'
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -19,7 +20,6 @@ export function NavSecondary({
     title: string
     url: string
     icon: Icon
-    component?: React.ComponentType
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -28,8 +28,8 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              {item.component ? (
-                <item.component />
+              {item.title === "Temas" ? (
+                <ThemeSelector />
               ) : (
                 <SidebarMenuButton asChild>
                   <a href={item.url}>
@@ -44,4 +44,3 @@ export function NavSecondary({
       </SidebarGroupContent>
     </SidebarGroup>
   )
-}

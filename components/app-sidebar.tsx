@@ -120,7 +120,6 @@ const data = {
       title: "Temas",
       url: "#",
       icon: IconSettings,
-      component: ThemeSelector,
     },
     {
       title: "Settings",
