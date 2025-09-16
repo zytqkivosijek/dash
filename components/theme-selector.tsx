@@ -3,19 +3,18 @@
 import * as React from 'react'
 import { IconPalette, IconCheck } from '@tabler/icons-react'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  SidebarMenuButton,
-} from '@/components/ui/sidebar'
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 const themes = [
   {
     name: 'Default',
     value: 'default',
+    description: 'Tema padrão com cores neutras',
     colors: {
       primary: 'oklch(0.205 0 0)',
       accent: 'oklch(0.97 0 0)',
@@ -24,6 +23,7 @@ const themes = [
   {
     name: 'Cosmic Night',
     value: 'cosmic-night',
+    description: 'Tema escuro com tons roxos e azuis',
     colors: {
       primary: '#6e56cf',
       accent: '#d8e6ff',
@@ -50,6 +50,7 @@ const themes = [
   {
     name: 'Blue',
     value: 'blue',
+    description: 'Tema azul profissional',
     colors: {
       primary: 'oklch(0.5 0.2 240)',
       accent: 'oklch(0.95 0.05 240)',
@@ -58,6 +59,7 @@ const themes = [
   {
     name: 'Green',
     value: 'green',
+    description: 'Tema verde natural',
     colors: {
       primary: 'oklch(0.4 0.15 140)',
       accent: 'oklch(0.95 0.05 140)',
@@ -66,6 +68,7 @@ const themes = [
   {
     name: 'Purple',
     value: 'purple',
+    description: 'Tema roxo criativo',
     colors: {
       primary: 'oklch(0.45 0.2 280)',
       accent: 'oklch(0.95 0.05 280)',
@@ -74,6 +77,7 @@ const themes = [
   {
     name: 'Orange',
     value: 'orange',
+    description: 'Tema laranja energético',
     colors: {
       primary: 'oklch(0.55 0.2 50)',
       accent: 'oklch(0.95 0.05 50)',
@@ -83,6 +87,14 @@ const themes = [
 
 export function ThemeSelector() {
   const [selectedTheme, setSelectedTheme] = React.useState('default')
+
+  React.useEffect(() => {
+    // Verificar se há um tema salvo no localStorage
+    const savedTheme = localStorage.getItem('selected-theme')
+    if (savedTheme) {
+      setSelectedTheme(savedTheme)
+    }
+  }, [])
 
   const applyTheme = (theme: typeof themes[0]) => {
     const root = document.documentElement
@@ -216,6 +228,8 @@ export function ThemeSelector() {
     }
     
     setSelectedTheme(theme.value)
+    // Salvar tema no localStorage
+    localStorage.setItem('selected-theme', theme.value)
   }
 
   const getThemePreviewColor = (theme: typeof themes[0]) => {
@@ -226,33 +240,91 @@ export function ThemeSelector() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <SidebarMenuButton>
-          <IconPalette />
-          <span>Temas</span>
-        </SidebarMenuButton>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        {themes.map((theme) => (
-          <DropdownMenuItem
-            key={theme.value}
-            onClick={() => applyTheme(theme)}
-            className="flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2">
-              <div 
-                className="w-4 h-4 rounded-full border"
-                style={{ backgroundColor: getThemePreviewColor(theme) }}
-              />
-              <span>{theme.name}</span>
-            </div>
-            {selectedTheme === theme.value && (
-              <IconCheck className="w-4 h-4" />
-            )}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <IconPalette className="w-5 h-5" />
+            Selecionar Tema
+          </CardTitle>
+          <CardDescription>
+            Escolha um tema para personalizar a aparência do dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {themes.map((theme) => (
+              <div
+                key={theme.value}
+                className={`relative p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                  selectedTheme === theme.value 
+                    ? 'border-primary bg-accent/50 shadow-md' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                onClick={() => applyTheme(theme)}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
+                      style={{ backgroundColor: getThemePreviewColor(theme) }}
+                    />
+                    <div>
+                      <h3 className="font-medium">{theme.name}</h3>
+                    </div>
+                  </div>
+                  {selectedTheme === theme.value && (
+                    <IconCheck className="w-5 h-5 text-primary" />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {theme.description}
+                </p>
+                
+                {/* Preview das cores */}
+                <div className="flex gap-1 mt-3">
+                  <div 
+                    className="w-4 h-4 rounded-full border"
+                    style={{ backgroundColor: getThemePreviewColor(theme) }}
+                  />
+                  {theme.value === 'cosmic-night' && (
+                    <>
+                      <div 
+                        className="w-4 h-4 rounded-full border"
+                        style={{ backgroundColor: theme.colors.accent }}
+                      />
+                      <div 
+                        className="w-4 h-4 rounded-full border"
+                        style={{ backgroundColor: theme.colors.secondary }}
+                      />
+                    </>
+                  )}
+                  {theme.value !== 'cosmic-night' && theme.value !== 'default' && (
+                    <div 
+                      className="w-4 h-4 rounded-full border"
+                      style={{ backgroundColor: theme.colors.accent }}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Tema Atual</CardTitle>
+          <CardDescription>
+            Tema selecionado: {themes.find(t => t.value === selectedTheme)?.name || 'Default'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            {themes.find(t => t.value === selectedTheme)?.description || 'Tema padrão com cores neutras'}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

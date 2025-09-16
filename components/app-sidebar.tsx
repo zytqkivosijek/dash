@@ -13,6 +13,7 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconPalette,
   IconReport,
   IconSearch,
   IconSettings,
@@ -123,8 +124,8 @@ const data = {
   navSecondary: [
     {
       title: "Temas",
-      url: "#",
-      icon: IconSettings,
+      url: "/themes",
+      icon: IconPalette,
     },
     {
       title: "Settings",

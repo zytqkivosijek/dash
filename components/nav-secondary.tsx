@@ -3,7 +3,6 @@
 import * as React from "react"
 import { type Icon } from "@tabler/icons-react"
 
-import { ThemeSelector } from '@/components/theme-selector'
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -29,16 +28,12 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              {item.title === "Temas" ? (
-                <ThemeSelector />
-              ) : (
-                <SidebarMenuButton asChild>
-                  <a href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </a>
-                </SidebarMenuButton>
-              )}
+              <SidebarMenuButton asChild>
+                <a href={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </a>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
