@@ -54,6 +54,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { AccountsDistribution } from '@/components/accounts-distribution'
+import { CostsDistribution } from '@/components/costs-distribution'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -108,6 +109,14 @@ import {
 } from '@/components/ui/tabs'
 
 interface Account {
+  id: number
+  name: string
+  value: number
+  percentage: number
+  color: string
+}
+
+interface Cost {
   id: number
   name: string
   value: number
@@ -349,10 +358,14 @@ export function DataTable({
   data: initialData,
   accountsData,
   totalValue,
+  costsData,
+  totalCosts,
 }: {
   data: z.infer<typeof schema>[]
   accountsData: Account[]
   totalValue: number
+  costsData: Cost[]
+  totalCosts: number
 }) {
   const [data, setData] = React.useState(() => initialData)
   const [rowSelection, setRowSelection] = React.useState({})
@@ -433,6 +446,7 @@ export function DataTable({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="outline">Outline</SelectItem>
+            <SelectItem value="custos">Custos</SelectItem>
             <SelectItem value="past-performance">Past Performance</SelectItem>
             <SelectItem value="key-personnel">Key Personnel</SelectItem>
             <SelectItem value="focus-documents">Focus Documents</SelectItem>
@@ -440,6 +454,9 @@ export function DataTable({
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <TabsTrigger value="outline">Outline</TabsTrigger>
+          <TabsTrigger value="custos">
+            Custos <Badge variant="secondary">{costsData.length}</Badge>
+          </TabsTrigger>
           <TabsTrigger value="past-performance">
             Past Performance <Badge variant="secondary">3</Badge>
           </TabsTrigger>
@@ -493,6 +510,12 @@ export function DataTable({
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <AccountsDistribution accountsData={accountsData} totalValue={totalValue} />
+      </TabsContent>
+      <TabsContent
+        value="custos"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <CostsDistribution costsData={costsData} totalValue={totalCosts} />
       </TabsContent>
       <TabsContent
         value="past-performance"

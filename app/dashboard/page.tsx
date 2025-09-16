@@ -73,6 +73,41 @@ const accountsData = [
 // Calcular o total das contas
 const totalValue = accountsData.reduce((sum, account) => sum + account.value, 0)
 
+// Dados dos custos centralizados
+const costsData = [
+  {
+    id: 1,
+    name: "Custódia",
+    value: 240500.00,
+    percentage: 89.6,
+    color: "bg-red-500",
+  },
+  {
+    id: 2,
+    name: "Quadcode",
+    value: 21000.00,
+    percentage: 7.8,
+    color: "bg-orange-500",
+  },
+  {
+    id: 3,
+    name: "Afiliados",
+    value: 5000.00,
+    percentage: 1.9,
+    color: "bg-yellow-500",
+  },
+  {
+    id: 4,
+    name: "Colaboradores",
+    value: 2000.00,
+    percentage: 0.7,
+    color: "bg-purple-500",
+  },
+]
+
+// Calcular o total dos custos
+const totalCosts = costsData.reduce((sum, cost) => sum + cost.value, 0)
+
 export default function Page() {
   return (
     <SidebarProvider
@@ -89,11 +124,11 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards totalAvailableBalance={totalValue} />
+              <SectionCards totalAvailableBalance={totalValue} totalCosts={totalCosts} />
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
-              <DataTable data={data} accountsData={accountsData} totalValue={totalValue} />
+              <DataTable data={data} accountsData={accountsData} totalValue={totalValue} costsData={costsData} totalCosts={totalCosts} />
             </div>
           </div>
         </div>
