@@ -20,6 +20,7 @@ export function NavSecondary({
     title: string
     url: string
     icon: Icon
+    component?: React.ComponentType
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -44,3 +45,4 @@ export function NavSecondary({
       </SidebarGroupContent>
     </SidebarGroup>
   )
+}
