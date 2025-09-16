@@ -228,7 +228,7 @@ export function ThemeSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuButton tooltip="Escolher Tema">
+        <SidebarMenuButton>
           <IconPalette />
           <span>Temas</span>
         </SidebarMenuButton>
