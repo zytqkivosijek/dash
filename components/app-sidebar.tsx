@@ -47,6 +47,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Contas Ativas",
+      url: "/contas-ativas",
+      icon: IconDatabase,
+    },
+    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,
