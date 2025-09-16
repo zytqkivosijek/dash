@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/components/auth-guard'
 import { AppSidebar } from '@/components/app-sidebar'
 import { ChartAreaInteractive } from '@/components/chart-area-interactive'
 import { DataTable } from '@/components/data-table'
@@ -113,6 +114,7 @@ const netDifference = totalValue - totalCosts
 
 export default function Page() {
   return (
+    <AuthGuard>
     <SidebarProvider
       style={
         {
@@ -137,5 +139,6 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </AuthGuard>
   )
 }

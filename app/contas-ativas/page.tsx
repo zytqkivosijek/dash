@@ -1,3 +1,4 @@
+import { AuthGuard } from '@/components/auth-guard'
 import { AppSidebar } from '@/components/app-sidebar'
 import { ContasAtivasManager } from '@/components/contas-ativas-manager'
 import { SiteHeader } from '@/components/site-header'
@@ -8,6 +9,7 @@ import {
 
 export default function ContasAtivasPage() {
   return (
+    <AuthGuard>
     <SidebarProvider
       style={
         {
@@ -38,5 +40,6 @@ export default function ContasAtivasPage() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </AuthGuard>
   )
 }
