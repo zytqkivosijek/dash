@@ -1,5 +1,7 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { ChartAreaInteractive } from '@/components/chart-area-interactive'
+import { ChartBarInteractive } from '@/components/chart-bar-interactive'
+import { ChartLineInteractive } from '@/components/chart-line-interactive'
 import { DataTable } from '@/components/data-table'
 import { SectionCards } from '@/components/section-cards'
 import { SiteHeader } from '@/components/site-header'
@@ -27,8 +29,10 @@ export default function Page() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <SectionCards />
-              <div className="px-4 lg:px-6">
+              <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @4xl/main:grid-cols-2 @7xl/main:grid-cols-3">
                 <ChartAreaInteractive />
+                <ChartBarInteractive />
+                <ChartLineInteractive />
               </div>
               <DataTable data={data} />
             </div>
