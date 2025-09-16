@@ -24,7 +24,7 @@ import { NavDocuments } from '@/components/nav-documents'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
 import { NavUser } from '@/components/nav-user'
-import { ThemeSelector } from '@/components/theme-selector'
+import { ThemeSelectorModal } from '@/components/theme-selector-modal'
 import {
   Sidebar,
   SidebarContent,
@@ -124,8 +124,9 @@ const data = {
   navSecondary: [
     {
       title: "Temas",
-      url: "/themes",
+      url: "#",
       icon: IconPalette,
+      component: ThemeSelectorModal,
     },
     {
       title: "Settings",

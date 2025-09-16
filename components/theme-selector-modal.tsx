@@ -3,12 +3,21 @@
 import * as React from 'react'
 import { IconPalette, IconCheck } from '@tabler/icons-react'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const themes = [
   {
@@ -85,8 +94,13 @@ const themes = [
   }
 ]
 
-export function ThemeSelector() {
+interface ThemeSelectorModalProps {
+  children: React.ReactNode
+}
+
+export function ThemeSelectorModal({ children }: ThemeSelectorModalProps) {
   const [selectedTheme, setSelectedTheme] = React.useState('default')
+  const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
     // Verificar se há um tema salvo no localStorage
@@ -240,18 +254,22 @@ export function ThemeSelector() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <IconPalette className="w-5 h-5" />
             Selecionar Tema
-          </CardTitle>
-          <CardDescription>
+          </DialogTitle>
+          <DialogDescription>
             Escolha um tema para personalizar a aparência do dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {themes.map((theme) => (
               <div
@@ -309,22 +327,22 @@ export function ThemeSelector() {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Tema Atual</CardTitle>
-          <CardDescription>
-            Tema selecionado: {themes.find(t => t.value === selectedTheme)?.name || 'Default'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            {themes.find(t => t.value === selectedTheme)?.description || 'Tema padrão com cores neutras'}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Tema Atual</CardTitle>
+              <CardDescription>
+                Tema selecionado: {themes.find(t => t.value === selectedTheme)?.name || 'Default'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                {themes.find(t => t.value === selectedTheme)?.description || 'Tema padrão com cores neutras'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
