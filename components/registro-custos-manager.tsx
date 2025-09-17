@@ -134,6 +134,25 @@ export function RegistroCustosManager() {
 
   const totalCustos = registros.reduce((sum, registro) => sum + registro.valor, 0)
 
+  // Calcular custos do mês atual
+  const [custosMesAtual, setCustosMesAtual] = React.useState(0)
+  const [registrosMesAtual, setRegistrosMesAtual] = React.useState(0)
+
+  React.useEffect(() => {
+    const agora = new Date()
+    const mesAtual = agora.getMonth()
+    const anoAtual = agora.getFullYear()
+    
+    const registrosDoMes = registros.filter(registro => {
+      const dataRegistro = new Date(registro.data)
+      return dataRegistro.getMonth() === mesAtual && dataRegistro.getFullYear() === anoAtual
+    })
+    
+    const totalMes = registrosDoMes.reduce((sum, registro) => sum + registro.valor, 0)
+    setCustosMesAtual(totalMes)
+    setRegistrosMesAtual(registrosDoMes.length)
+  }, [registros])
+
   const handleAddRegistro = () => {
     if (!formData.data || !formData.descricao || !formData.valor || !formData.responsavel || !formData.metodoPagamento) return
 
@@ -221,25 +240,46 @@ export function RegistroCustosManager() {
 
   return (
     <div className="space-y-6">
-      {/* Card com total de custos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Total de Custos Registrados</span>
-            <Badge variant="outline" className="text-lg px-3 py-1">
-              {registros.length} registros
-            </Badge>
-          </CardTitle>
-          <CardDescription>
-            Valor total dos gastos registrados no sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-red-600">
-            US$ {totalCustos.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Cards com totais de custos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Total de Custos Registrados</span>
+              <Badge variant="outline" className="text-lg px-3 py-1">
+                {registros.length} registros
+              </Badge>
+            </CardTitle>
+            <CardDescription>
+              Valor total dos gastos registrados no sistema
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-600">
+              US$ {totalCustos.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Total de Custos Este Mês</span>
+              <Badge variant="outline" className="text-lg px-3 py-1">
+                {registrosMesAtual} registros
+              </Badge>
+            </CardTitle>
+            <CardDescription>
+              Valor dos gastos registrados no mês atual
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-600">
+              US$ {custosMesAtual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Header com botões de ação */}
       <div className="flex items-center justify-between">
