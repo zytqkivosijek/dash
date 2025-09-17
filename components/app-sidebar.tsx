@@ -53,6 +53,11 @@ const data = {
       icon: IconReport,
     },
     {
+      title: "Folha de Pagamento",
+      url: "/folha-pagamento",
+      icon: IconUsers,
+    },
+    {
       title: "Registro de Custos",
       url: "/registro-custos",
       icon: IconListDetails,
