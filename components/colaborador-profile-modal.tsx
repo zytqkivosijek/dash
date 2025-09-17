@@ -62,6 +62,13 @@ export function ColaboradorProfileModal({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
+              <DialogTitle>{colaborador.nome}</DialogTitle>
+              <DialogDescription>
+                <Badge className={`${getStatusColor(colaborador.status)} text-white`}>
+                  {colaborador.status}
+                </Badge>
+              </DialogDescription>
+            </div>
             <div className="flex gap-2">
               {isEditing ? (
                 <>
