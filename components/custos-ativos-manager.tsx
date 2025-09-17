@@ -49,6 +49,11 @@ interface Cost {
   color: string
 }
 
+import { getCosts, createCost, updateCost, deleteCost, updateCostPercentages } from '@/lib/costs-service'
+import { Database } from '@/types/database'
+
+type Cost = Database['public']['Tables']['costs']['Row']
+
 const colorOptions = [
   { value: 'bg-red-500', label: 'Vermelho', color: '#ef4444' },
   { value: 'bg-orange-500', label: 'Laranja', color: '#f97316' },
@@ -63,36 +68,8 @@ const colorOptions = [
 ]
 
 export function CustosAtivosManager() {
-  const [costs, setCosts] = React.useState<Cost[]>([
-    {
-      id: 1,
-      name: "Custódia",
-      value: 240500.00,
-      percentage: 89.6,
-      color: "bg-red-500",
-    },
-    {
-      id: 2,
-      name: "Quadcode",
-      value: 21000.00,
-      percentage: 7.8,
-      color: "bg-orange-500",
-    },
-    {
-      id: 3,
-      name: "Afiliados",
-      value: 5000.00,
-      percentage: 1.9,
-      color: "bg-yellow-500",
-    },
-    {
-      id: 4,
-      name: "Colaboradores",
-      value: 2000.00,
-      percentage: 0.7,
-      color: "bg-purple-500",
-    },
-  ])
+  const [costs, setCosts] = React.useState<Cost[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
 
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [editingCost, setEditingCost] = React.useState<Cost | null>(null)
@@ -104,31 +81,44 @@ export function CustosAtivosManager() {
     color: 'bg-red-500'
   })
 
-  const totalValue = costs.reduce((sum, cost) => sum + cost.value, 0)
+  // Carregar custos do Supabase
+  React.useEffect(() => {
+    loadCosts()
+  }, [])
 
-  const calculatePercentages = (costsList: Cost[]) => {
-    const total = costsList.reduce((sum, cost) => sum + cost.value, 0)
-    return costsList.map(cost => ({
-      ...cost,
-      percentage: total > 0 ? Number(((cost.value / total) * 100).toFixed(1)) : 0
-    }))
+  const loadCosts = async () => {
+    setIsLoading(true)
+    try {
+      const data = await getCosts()
+      setCosts(data)
+    } catch (error) {
+      console.error('Error loading costs:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleAddCost = () => {
+  const totalValue = costs.reduce((sum, cost) => sum + cost.value, 0)
+
+  const handleAddCost = async () => {
     if (!formData.name || !formData.value) return
 
-    const newCost: Cost = {
-      id: Math.max(...costs.map(c => c.id), 0) + 1,
-      name: formData.name,
-      value: parseFloat(formData.value),
-      percentage: 0,
-      color: formData.color
-    }
+    try {
+      const newCost = await createCost({
+        name: formData.name,
+        value: parseFloat(formData.value),
+        color: formData.color,
+        logo_url: logoPreview || null
+      })
 
-    const updatedCosts = calculatePercentages([...costs, newCost])
-    setCosts(updatedCosts)
-    resetForm()
-    setIsAddDialogOpen(false)
+      if (newCost) {
+        await loadCosts() // Recarregar para recalcular percentuais
+        resetForm()
+        setIsAddDialogOpen(false)
+      }
+    } catch (error) {
+      console.error('Error adding cost:', error)
+    }
   }
 
   const handleEditCost = (cost: Cost) => {
@@ -138,31 +128,34 @@ export function CustosAtivosManager() {
       value: cost.value.toString(),
       color: cost.color
     })
+    setLogoPreview(cost.logo_url || '')
   }
 
-  const handleUpdateCost = () => {
+  const handleUpdateCost = async () => {
     if (!editingCost || !formData.name || !formData.value) return
 
-    const updatedCosts = costs.map(cost =>
-      cost.id === editingCost.id
-        ? {
-            ...cost,
-            name: formData.name,
-            value: parseFloat(formData.value),
-            color: formData.color
-          }
-        : cost
-    )
+    try {
+      await updateCost(editingCost.id, {
+        name: formData.name,
+        value: parseFloat(formData.value),
+        color: formData.color,
+        logo_url: logoPreview || null
+      })
 
-    const costsWithPercentages = calculatePercentages(updatedCosts)
-    setCosts(costsWithPercentages)
-    resetForm()
+      await loadCosts() // Recarregar para recalcular percentuais
+      resetForm()
+    } catch (error) {
+      console.error('Error updating cost:', error)
+    }
   }
 
-  const handleDeleteCost = (costId: number) => {
-    const updatedCosts = costs.filter(cost => cost.id !== costId)
-    const costsWithPercentages = calculatePercentages(updatedCosts)
-    setCosts(costsWithPercentages)
+  const handleDeleteCost = async (costId: string) => {
+    try {
+      await deleteCost(costId)
+      await loadCosts() // Recarregar para recalcular percentuais
+    } catch (error) {
+      console.error('Error deleting cost:', error)
+    }
   }
 
   const resetForm = () => {
