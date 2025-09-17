@@ -8,7 +8,7 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react"
 import { useRouter } from 'next/navigation'
-import { logout, getCurrentUser } from '@/lib/auth'
+import { logout, getCurrentUserFromStorage } from '@/lib/auth'
 
 import {
   Avatar,
@@ -34,11 +34,12 @@ import {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()
-  const user = getCurrentUser()
+  const user = getCurrentUserFromStorage()
 
   const handleLogout = () => {
-    logout()
-    router.push('/auth')
+    logout().then(() => {
+      router.push('/auth')
+    })
   }
 
   if (!user) {
