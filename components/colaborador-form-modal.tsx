@@ -35,6 +35,9 @@ interface ColaboradorFormModalProps {
 }
 
 export function ColaboradorFormModal({ isOpen, onClose, onSubmit }: ColaboradorFormModalProps) {
+  const [fotoFile, setFotoFile] = React.useState<File | null>(null)
+  const [fotoPreview, setFotoPreview] = React.useState<string>('')
+
   const [formData, setFormData] = React.useState({
     // Dados Pessoais
     nome: '',
@@ -119,7 +122,6 @@ export function ColaboradorFormModal({ isOpen, onClose, onSubmit }: ColaboradorF
   const resetForm = () => {
     setFormData({
       nome: '',
-      foto: '',
       cpfCnpj: '',
       rg: '',
       dataNascimento: '',
