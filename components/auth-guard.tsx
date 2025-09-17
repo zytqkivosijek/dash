@@ -13,7 +13,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isLoading, setIsLoading] = React.useState(true)
 
   React.useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = () => {
       const localAuth = isAuthenticated()
       const supabaseAuth = await checkSupabaseAuth()
       
@@ -25,7 +25,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     }
 
     // Pequeno delay para evitar flash
-    const timer = setTimeout(() => checkAuth(), 100)
+    const timer = setTimeout(checkAuth, 100)
     
     return () => clearTimeout(timer)
   }, [router])

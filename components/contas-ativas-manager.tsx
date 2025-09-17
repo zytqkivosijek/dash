@@ -42,10 +42,14 @@ import {
 } from '@/components/ui/alert-dialog'
 
 import { getTronBalance } from '@/lib/tron-api'
-import { getAccounts, createAccount, updateAccount, deleteAccount, updateAccountPercentages } from '@/lib/accounts-service'
-import { Database } from '@/types/database'
 
-type Account = Database['public']['Tables']['accounts']['Row']
+interface Account {
+  id: number
+  name: string
+  value: number
+  percentage: number
+  color: string
+}
 
 const colorOptions = [
   { value: 'bg-blue-500', label: 'Azul', color: '#3b82f6' },
@@ -61,8 +65,65 @@ const colorOptions = [
 ]
 
 export function ContasAtivasManager() {
-  const [accounts, setAccounts] = React.useState<Account[]>([])
-  const [isLoading, setIsLoading] = React.useState(true)
+  const [accounts, setAccounts] = React.useState<Account[]>([
+    {
+      id: 1,
+      name: "GUARDA",
+      value: 7367.39,
+      percentage: 2.2,
+      color: "bg-blue-500",
+    },
+    {
+      id: 2,
+      name: "OLD GOLD (BTC)",
+      value: 24300.05,
+      percentage: 7.4,
+      color: "bg-yellow-500",
+    },
+    {
+      id: 3,
+      name: "PAY RETAILERS",
+      value: 128383.86,
+      percentage: 39.2,
+      color: "bg-purple-500",
+    },
+    {
+      id: 4,
+      name: "SCALA",
+      value: 9695.84,
+      percentage: 3.0,
+      color: "bg-indigo-500",
+    },
+    {
+      id: 5,
+      name: "CRYPTO PAY",
+      value: 6550.52,
+      percentage: 2.0,
+      color: "bg-orange-500",
+    },
+    {
+      id: 6,
+      name: "NEW GOLD",
+      value: 144562.17,
+      percentage: 44.1,
+      color: "bg-green-500",
+    },
+    {
+      id: 7,
+      name: "NEW GOLD 2",
+      value: 0.00,
+      percentage: 0.0,
+      color: "bg-gray-400",
+    },
+    {
+      id: 8,
+      name: "ADS (Conta Simples)",
+      value: 6700.00,
+      percentage: 2.0,
+      color: "bg-pink-500",
+    },
+  ])
+
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [editingAccount, setEditingAccount] = React.useState<Account | null>(null)
   const [valueInputType, setValueInputType] = React.useState<'manual' | 'tron'>('manual')
@@ -78,53 +139,31 @@ export function ContasAtivasManager() {
     color: 'bg-blue-500'
   })
 
-  // Carregar contas do Supabase
-  React.useEffect(() => {
-    loadAccounts()
-  }, [])
-
-  const loadAccounts = async () => {
-    setIsLoading(true)
-    try {
-      // Verificar se o usuário está autenticado antes de carregar
-      const user = await getCurrentUser()
-      if (!user) {
-        console.error('User not authenticated')
-        setAccounts([])
-        return
-      }
-      
-      const data = await getAccounts()
-      setAccounts(data)
-    } catch (error) {
-      console.error('Error loading accounts:', error)
-      setAccounts([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const totalValue = accounts.reduce((sum, account) => sum + account.value, 0)
 
-  const handleAddAccount = async () => {
+  const calculatePercentages = (accountsList: Account[]) => {
+    const total = accountsList.reduce((sum, account) => sum + account.value, 0)
+    return accountsList.map(account => ({
+      ...account,
+      percentage: total > 0 ? Number(((account.value / total) * 100).toFixed(1)) : 0
+    }))
+  }
+
+  const handleAddAccount = () => {
     if (!formData.name || !formData.value) return
 
-    try {
-      const newAccount = await createAccount({
-        name: formData.name,
-        value: parseFloat(formData.value),
-        color: formData.color,
-        logo_url: logoPreview || null
-      })
-
-      if (newAccount) {
-        await loadAccounts() // Recarregar para recalcular percentuais
-        resetForm()
-        setIsAddDialogOpen(false)
-      }
-    } catch (error) {
-      console.error('Error adding account:', error)
+    const newAccount: Account = {
+      id: Math.max(...accounts.map(a => a.id), 0) + 1,
+      name: formData.name,
+      value: parseFloat(formData.value),
+      percentage: 0,
+      color: formData.color
     }
+
+    const updatedAccounts = calculatePercentages([...accounts, newAccount])
+    setAccounts(updatedAccounts)
+    resetForm()
+    setIsAddDialogOpen(false)
   }
 
   const handleEditAccount = (account: Account) => {
@@ -134,34 +173,31 @@ export function ContasAtivasManager() {
       value: account.value.toString(),
       color: account.color
     })
-    setLogoPreview(account.logo_url || '')
   }
 
-  const handleUpdateAccount = async () => {
+  const handleUpdateAccount = () => {
     if (!editingAccount || !formData.name || !formData.value) return
 
-    try {
-      await updateAccount(editingAccount.id, {
-        name: formData.name,
-        value: parseFloat(formData.value),
-        color: formData.color,
-        logo_url: logoPreview || null
-      })
+    const updatedAccounts = accounts.map(account =>
+      account.id === editingAccount.id
+        ? {
+            ...account,
+            name: formData.name,
+            value: parseFloat(formData.value),
+            color: formData.color
+          }
+        : account
+    )
 
-      await loadAccounts() // Recarregar para recalcular percentuais
-      resetForm()
-    } catch (error) {
-      console.error('Error updating account:', error)
-    }
+    const accountsWithPercentages = calculatePercentages(updatedAccounts)
+    setAccounts(accountsWithPercentages)
+    resetForm()
   }
 
-  const handleDeleteAccount = async (accountId: string) => {
-    try {
-      await deleteAccount(accountId)
-      await loadAccounts() // Recarregar para recalcular percentuais
-    } catch (error) {
-      console.error('Error deleting account:', error)
-    }
+  const handleDeleteAccount = (accountId: number) => {
+    const updatedAccounts = accounts.filter(account => account.id !== accountId)
+    const accountsWithPercentages = calculatePercentages(updatedAccounts)
+    setAccounts(accountsWithPercentages)
   }
 
   const resetForm = () => {

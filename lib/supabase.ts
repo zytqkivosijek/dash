@@ -4,18 +4,7 @@ import { Database } from '@/types/database'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Verificar se as variáveis estão definidas
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase environment variables are missing!')
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false
-  }
-})
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Helper para verificar se o usuário está autenticado
 export const getCurrentUser = async () => {
