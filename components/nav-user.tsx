@@ -8,7 +8,7 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react"
 import { useRouter } from 'next/navigation'
-import { logout, getCurrentUser } from '@/lib/auth'
+import { logout, onAuthStateChange, User } from '@/lib/auth'
 
 import {
   Avatar,
@@ -34,11 +34,23 @@ import {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const router = useRouter()
-  const user = getCurrentUser()
+  const [user, setUser] = React.useState<User | null>(null)
 
-  const handleLogout = () => {
-    logout()
-    router.push('/auth')
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChange((user) => {
+      setUser(user)
+    })
+    
+    return () => unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push('/auth')
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error)
+    }
   }
 
   if (!user) {

@@ -39,6 +39,7 @@ export interface Colaborador {
 
 export interface HistoricoAlteracao {
   id: number
+  colaboradorId: number
   data: string
   acao: string
   usuario: string

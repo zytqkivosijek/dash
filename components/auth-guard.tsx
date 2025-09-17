@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { isAuthenticated } from '@/lib/auth'
+import { onAuthStateChange, User } from '@/lib/auth'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -11,20 +11,19 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(true)
+  const [user, setUser] = React.useState<User | null>(null)
 
   React.useEffect(() => {
-    const checkAuth = () => {
-      if (!isAuthenticated()) {
+    const unsubscribe = onAuthStateChange((user) => {
+      setUser(user)
+      if (!user) {
         router.push('/auth')
       } else {
         setIsLoading(false)
       }
-    }
-
-    // Pequeno delay para evitar flash
-    const timer = setTimeout(checkAuth, 100)
+    })
     
-    return () => clearTimeout(timer)
+    return () => unsubscribe()
   }, [router])
 
   if (isLoading) {

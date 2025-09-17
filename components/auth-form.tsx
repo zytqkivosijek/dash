@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { login, register } from '@/lib/auth'
+import { login, register, onAuthStateChange } from '@/lib/auth'
 
 export function AuthForm({
   className,
@@ -19,6 +19,16 @@ export function AuthForm({
   const [error, setError] = React.useState('')
   const [success, setSuccess] = React.useState('')
 
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChange((user) => {
+      if (user) {
+        router.push('/dashboard')
+      }
+    })
+    
+    return () => unsubscribe()
+  }, [router])
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
@@ -26,19 +36,16 @@ export function AuthForm({
     setSuccess('')
 
     const formData = new FormData(e.currentTarget)
-    const username = formData.get('username') as string
+    const email = formData.get('email') as string
     const password = formData.get('password') as string
 
     try {
-      const user = login(username, password)
+      const user = await login(email, password)
       
       if (user) {
         setSuccess('Login realizado com sucesso!')
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1000)
       } else {
-        setError('Credenciais inválidas. Use: admin/admin')
+        setError('Credenciais inválidas ou usuário não encontrado')
       }
     } catch (err) {
       setError('Erro ao fazer login. Tente novamente.')
@@ -72,13 +79,10 @@ export function AuthForm({
     }
 
     try {
-      const user = register(username, email, password)
+      const user = await register(username, email, password)
       
       if (user) {
         setSuccess('Conta criada com sucesso!')
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 1000)
       } else {
         setError('Erro ao criar conta. Tente novamente.')
       }
@@ -108,12 +112,12 @@ export function AuthForm({
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-username">Usuário</Label>
+                  <Label htmlFor="login-email">Email</Label>
                   <Input
-                    id="login-username"
-                    name="username"
-                    type="text"
-                    placeholder="admin"
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    placeholder="seu@email.com"
                     required
                     disabled={isLoading}
                   />
@@ -124,7 +128,7 @@ export function AuthForm({
                     id="login-password"
                     name="password"
                     type="password"
-                    placeholder="admin"
+                    placeholder="Sua senha"
                     required
                     disabled={isLoading}
                   />
@@ -145,12 +149,6 @@ export function AuthForm({
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Entrando...' : 'Entrar'}
                 </Button>
-                
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Credenciais padrão:</p>
-                  <p><strong>Usuário:</strong> admin</p>
-                  <p><strong>Senha:</strong> admin</p>
-                </div>
               </form>
             </CardContent>
           </Card>

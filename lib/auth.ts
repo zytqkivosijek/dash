@@ -1,70 +1,127 @@
-// Sistema de autenticação simples
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  User as FirebaseUser 
+} from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { auth, db } from './firebase'
+
 export interface User {
+  uid: string
   username: string
   email: string
 }
 
-export const DEFAULT_CREDENTIALS = {
-  username: 'admin',
-  password: 'admin',
-  email: 'admin@example.com'
-}
-
-export function login(username: string, password: string): User | null {
-  if (username === DEFAULT_CREDENTIALS.username && password === DEFAULT_CREDENTIALS.password) {
-    const user: User = {
-      username: DEFAULT_CREDENTIALS.username,
-      email: DEFAULT_CREDENTIALS.email
+export async function login(email: string, password: string): Promise<User | null> {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password)
+    const firebaseUser = userCredential.user
+    
+    // Buscar dados adicionais do usuário no Firestore
+    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+    
+    if (userDoc.exists()) {
+      const userData = userDoc.data()
+      return {
+        uid: firebaseUser.uid,
+        username: userData.username || firebaseUser.email?.split('@')[0] || 'Usuário',
+        email: firebaseUser.email || ''
+      }
     }
     
-    // Salvar no localStorage
-    localStorage.setItem('user', JSON.stringify(user))
-    localStorage.setItem('isAuthenticated', 'true')
+    // Se não existe documento do usuário, criar um básico
+    const user: User = {
+      uid: firebaseUser.uid,
+      username: firebaseUser.email?.split('@')[0] || 'Usuário',
+      email: firebaseUser.email || ''
+    }
+    
+    await setDoc(doc(db, 'users', firebaseUser.uid), {
+      username: user.username,
+      email: user.email,
+      createdAt: new Date().toISOString()
+    })
     
     return user
+  } catch (error) {
+    console.error('Erro no login:', error)
+    return null
   }
-  
-  return null
 }
 
-export function register(username: string, email: string, password: string): User | null {
-  // Para simplicidade, vamos apenas aceitar qualquer registro
-  // Em um sistema real, você salvaria no banco de dados
-  const user: User = {
-    username,
-    email
+export async function register(username: string, email: string, password: string): Promise<User | null> {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+    const firebaseUser = userCredential.user
+    
+    const user: User = {
+      uid: firebaseUser.uid,
+      username,
+      email: firebaseUser.email || email
+    }
+    
+    // Salvar dados adicionais do usuário no Firestore
+    await setDoc(doc(db, 'users', firebaseUser.uid), {
+      username,
+      email: user.email,
+      createdAt: new Date().toISOString()
+    })
+    
+    return user
+  } catch (error) {
+    console.error('Erro no registro:', error)
+    return null
   }
-  
-  // Salvar no localStorage
-  localStorage.setItem('user', JSON.stringify(user))
-  localStorage.setItem('isAuthenticated', 'true')
-  
-  return user
 }
 
-export function logout(): void {
-  localStorage.removeItem('user')
-  localStorage.removeItem('isAuthenticated')
+export async function logout(): Promise<void> {
+  try {
+    await signOut(auth)
+  } catch (error) {
+    console.error('Erro no logout:', error)
+  }
 }
 
 export function getCurrentUser(): User | null {
-  if (typeof window === 'undefined') return null
+  const firebaseUser = auth.currentUser
+  if (!firebaseUser) return null
   
-  const isAuthenticated = localStorage.getItem('isAuthenticated')
-  const userStr = localStorage.getItem('user')
-  
-  if (isAuthenticated === 'true' && userStr) {
-    try {
-      return JSON.parse(userStr)
-    } catch {
-      return null
-    }
+  return {
+    uid: firebaseUser.uid,
+    username: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuário',
+    email: firebaseUser.email || ''
   }
-  
-  return null
 }
 
 export function isAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false
-  return localStorage.getItem('isAuthenticated') === 'true'
+  return !!auth.currentUser
+}
+
+// Hook para escutar mudanças no estado de autenticação
+export function onAuthStateChange(callback: (user: User | null) => void) {
+  return onAuthStateChanged(auth, async (firebaseUser) => {
+    if (firebaseUser) {
+      // Buscar dados do usuário no Firestore
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data()
+        callback({
+          uid: firebaseUser.uid,
+          username: userData.username || firebaseUser.email?.split('@')[0] || 'Usuário',
+          email: firebaseUser.email || ''
+        })
+      } else {
+        callback({
+          uid: firebaseUser.uid,
+          username: firebaseUser.email?.split('@')[0] || 'Usuário',
+          email: firebaseUser.email || ''
+        })
+      }
+    } else {
+      callback(null)
+    }
+  })
 }
