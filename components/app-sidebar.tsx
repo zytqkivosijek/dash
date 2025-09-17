@@ -53,11 +53,6 @@ const data = {
       icon: IconReport,
     },
     {
-      title: "Colaboradores",
-      url: "/colaboradores",
-      icon: IconUsers,
-    },
-    {
       title: "Folha de Pagamento",
       url: "/folha-pagamento",
       icon: IconUsers,
