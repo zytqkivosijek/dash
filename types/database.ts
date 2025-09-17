@@ -172,6 +172,35 @@ export interface Database {
           user_id?: string
         }
       }
+      historico_alteracoes: {
+        Row: {
+          id: string
+          colaborador_id: string
+          acao: string
+          detalhes: string
+          usuario_responsavel: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          colaborador_id: string
+          acao: string
+          detalhes: string
+          usuario_responsavel: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          colaborador_id?: string
+          acao?: string
+          detalhes?: string
+          usuario_responsavel?: string
+          created_at?: string
+          user_id?: string
+        }
+      }
       registro_custos: {
         Row: {
           id: string
