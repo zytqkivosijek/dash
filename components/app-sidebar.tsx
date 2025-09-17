@@ -48,6 +48,11 @@ const data = {
       icon: IconDatabase,
     },
     {
+      title: "Custos Ativos",
+      url: "/custos-ativos",
+      icon: IconReport,
+    },
+    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,
