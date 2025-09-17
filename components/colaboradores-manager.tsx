@@ -1142,6 +1142,208 @@ export function ColaboradoresManager() {
         </CardContent>
       </Card>
 
+      {/* Modal de Perfil do Colaborador */}
+      <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedColaborador && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${getStatusColor(selectedColaborador.status)}`} />
+                  {selectedColaborador.nome}
+                </DialogTitle>
+                <DialogDescription>
+                  {selectedColaborador.cargo} • {selectedColaborador.departamento}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="mt-6">
+                <Tabs defaultValue="pessoais" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="pessoais">Dados Pessoais</TabsTrigger>
+                    <TabsTrigger value="financeiros">Financeiros</TabsTrigger>
+                    <TabsTrigger value="pagamento">Pagamento</TabsTrigger>
+                    <TabsTrigger value="historico">Histórico</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="pessoais" className="space-y-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Nome Completo</Label>
+                        <p className="text-sm">{selectedColaborador.nome}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">CPF/CNPJ</Label>
+                        <p className="text-sm font-mono">{selectedColaborador.cpfCnpj}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">RG</Label>
+                        <p className="text-sm font-mono">{selectedColaborador.rg}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Data de Nascimento</Label>
+                        <p className="text-sm">{formatDate(selectedColaborador.dataNascimento)}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Telefone</Label>
+                        <p className="text-sm">{selectedColaborador.telefone}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">E-mail Pessoal</Label>
+                        <p className="text-sm">{selectedColaborador.emailPessoal}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">E-mail Corporativo</Label>
+                        <p className="text-sm">{selectedColaborador.emailCorporativo}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Estado Civil</Label>
+                        <p className="text-sm">{selectedColaborador.estadoCivil}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-muted-foreground">Endereço Completo</Label>
+                      <div className="p-3 bg-muted rounded-md">
+                        <p className="text-sm">
+                          {selectedColaborador.endereco.rua}, {selectedColaborador.endereco.numero}
+                        </p>
+                        <p className="text-sm">
+                          {selectedColaborador.endereco.bairro} - {selectedColaborador.endereco.cidade}/{selectedColaborador.endereco.estado}
+                        </p>
+                        <p className="text-sm">
+                          CEP: {selectedColaborador.endereco.cep} - {selectedColaborador.endereco.pais}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Cargo</Label>
+                        <p className="text-sm">{selectedColaborador.cargo}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Departamento</Label>
+                        <p className="text-sm">{selectedColaborador.departamento}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Tipo de Contrato</Label>
+                        <div className="flex items-center gap-2">
+                          {getContratoIcon(selectedColaborador.tipoContrato)}
+                          <span className="text-sm">{selectedColaborador.tipoContrato}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Supervisor</Label>
+                        <p className="text-sm">{selectedColaborador.supervisor}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="financeiros" className="space-y-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Salário Base</Label>
+                        <p className="text-lg font-semibold">
+                          US$ {selectedColaborador.salarioBase.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Benefícios</Label>
+                        <p className="text-lg font-semibold text-green-600">
+                          + US$ {selectedColaborador.beneficios.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Descontos</Label>
+                        <p className="text-lg font-semibold text-red-600">
+                          - US$ {selectedColaborador.descontos.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Valor Líquido</Label>
+                        <p className="text-lg font-bold text-primary">
+                          US$ {(selectedColaborador.salarioBase + selectedColaborador.beneficios - selectedColaborador.descontos).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="pagamento" className="space-y-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Forma de Pagamento</Label>
+                        <p className="text-sm">{selectedColaborador.formaPagamento}</p>
+                      </div>
+                      {selectedColaborador.chavePix && (
+                        <div>
+                          <Label className="text-sm font-medium text-muted-foreground">Chave PIX</Label>
+                          <p className="text-sm font-mono">{selectedColaborador.chavePix}</p>
+                        </div>
+                      )}
+                      {selectedColaborador.enderecoUsdt && (
+                        <div className="col-span-2">
+                          <Label className="text-sm font-medium text-muted-foreground">Endereço USDT</Label>
+                          <p className="text-xs font-mono break-all bg-muted p-2 rounded">
+                            {selectedColaborador.enderecoUsdt}
+                          </p>
+                        </div>
+                      )}
+                      {selectedColaborador.dadosBancarios && (
+                        <div className="col-span-2">
+                          <Label className="text-sm font-medium text-muted-foreground">Dados Bancários</Label>
+                          <div className="p-3 bg-muted rounded-md">
+                            <p className="text-sm">
+                              <strong>Banco:</strong> {selectedColaborador.dadosBancarios.banco}
+                            </p>
+                            <p className="text-sm">
+                              <strong>Agência:</strong> {selectedColaborador.dadosBancarios.agencia} | 
+                              <strong> Conta:</strong> {selectedColaborador.dadosBancarios.conta}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="historico" className="space-y-4 mt-4">
+                    <div className="space-y-3">
+                      <h4 className="font-medium">Histórico de Alterações</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded-md">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Promoção para {selectedColaborador.cargo}</p>
+                            <p className="text-xs text-muted-foreground">
+                              15/01/2024 • Por: João Silva (RH)
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Salário ajustado de US$ 4,500 para US$ {selectedColaborador.salarioBase.toLocaleString('en-US')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded-md">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">Cadastro inicial</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(selectedColaborador.dataAdmissao)} • Por: Sistema
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Colaborador admitido como {selectedColaborador.tipoContrato}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Sheet do perfil detalhado */}
       <Sheet open={isProfileOpen} onOpenChange={setIsProfileOpen}>
         <SheetContent className="w-[600px] sm:w-[700px] overflow-y-auto">
