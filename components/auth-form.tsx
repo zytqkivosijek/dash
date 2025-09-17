@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { login, register, getCurrentUserFromStorage } from '@/lib/auth'
+import { login, register } from '@/lib/auth'
 
 export function AuthForm({
   className,
@@ -19,14 +19,6 @@ export function AuthForm({
   const [error, setError] = React.useState('')
   const [success, setSuccess] = React.useState('')
 
-  // Verificar se já está logado
-  React.useEffect(() => {
-    const user = getCurrentUserFromStorage()
-    if (user) {
-      router.push('/dashboard')
-    }
-  }, [router])
-
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
@@ -34,11 +26,11 @@ export function AuthForm({
     setSuccess('')
 
     const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
+    const username = formData.get('username') as string
     const password = formData.get('password') as string
 
     try {
-      const user = await login(email, password)
+      const user = login(username, password)
       
       if (user) {
         setSuccess('Login realizado com sucesso!')
@@ -46,7 +38,7 @@ export function AuthForm({
           router.push('/dashboard')
         }, 1000)
       } else {
-        setError('Credenciais inválidas. Verifique email e senha.')
+        setError('Credenciais inválidas. Use: admin/admin')
       }
     } catch (err) {
       setError('Erro ao fazer login. Tente novamente.')
@@ -62,6 +54,7 @@ export function AuthForm({
     setSuccess('')
 
     const formData = new FormData(e.currentTarget)
+    const username = formData.get('username') as string
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
@@ -79,7 +72,7 @@ export function AuthForm({
     }
 
     try {
-      const user = await register(email, password)
+      const user = register(username, email, password)
       
       if (user) {
         setSuccess('Conta criada com sucesso!')
@@ -115,12 +108,12 @@ export function AuthForm({
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
+                  <Label htmlFor="login-username">Usuário</Label>
                   <Input
-                    id="login-email"
-                    name="email"
-                    type="email"
-                    placeholder="seu@email.com"
+                    id="login-username"
+                    name="username"
+                    type="text"
+                    placeholder="admin"
                     required
                     disabled={isLoading}
                   />
@@ -131,7 +124,7 @@ export function AuthForm({
                     id="login-password"
                     name="password"
                     type="password"
-                    placeholder="Sua senha"
+                    placeholder="admin"
                     required
                     disabled={isLoading}
                   />
@@ -152,6 +145,12 @@ export function AuthForm({
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Entrando...' : 'Entrar'}
                 </Button>
+                
+                <div className="text-center text-sm text-muted-foreground">
+                  <p>Credenciais padrão:</p>
+                  <p><strong>Usuário:</strong> admin</p>
+                  <p><strong>Senha:</strong> admin</p>
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -167,6 +166,17 @@ export function AuthForm({
             </CardHeader>
             <CardContent>
               <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="register-username">Usuário</Label>
+                  <Input
+                    id="register-username"
+                    name="username"
+                    type="text"
+                    placeholder="Seu nome de usuário"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-email">Email</Label>
                   <Input

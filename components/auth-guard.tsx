@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { isAuthenticated, checkSupabaseAuth } from '@/lib/auth'
+import { isAuthenticated } from '@/lib/auth'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -14,10 +14,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   React.useEffect(() => {
     const checkAuth = () => {
-      const localAuth = isAuthenticated()
-      const supabaseAuth = await checkSupabaseAuth()
-      
-      if (!localAuth && !supabaseAuth) {
+      if (!isAuthenticated()) {
         router.push('/auth')
       } else {
         setIsLoading(false)

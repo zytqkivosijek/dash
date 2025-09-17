@@ -1,82 +1,53 @@
-import { supabase, signIn, signUp, signOut, getCurrentUser } from './supabase'
-
+// Sistema de autenticação simples
 export interface User {
-  id: string
+  username: string
   email: string
-  username?: string
 }
 
-export async function login(email: string, password: string): Promise<User | null> {
-  try {
-    const { data, error } = await signIn(email, password)
-    
-    if (error) {
-      console.error('Login error:', error.message)
-      return null
+export const DEFAULT_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin',
+  email: 'admin@example.com'
+}
+
+export function login(username: string, password: string): User | null {
+  if (username === DEFAULT_CREDENTIALS.username && password === DEFAULT_CREDENTIALS.password) {
+    const user: User = {
+      username: DEFAULT_CREDENTIALS.username,
+      email: DEFAULT_CREDENTIALS.email
     }
     
-    if (data.user) {
-      const user: User = {
-        id: data.user.id,
-        email: data.user.email!,
-        username: data.user.email!.split('@')[0]
-      }
-      
-      // Salvar no localStorage para compatibilidade
-      localStorage.setItem('user', JSON.stringify(user))
-      localStorage.setItem('isAuthenticated', 'true')
-      
-      return user
-    }
+    // Salvar no localStorage
+    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('isAuthenticated', 'true')
     
-    return null
-  } catch (error) {
-    console.error('Login error:', error)
-    return null
+    return user
   }
+  
+  return null
 }
 
-export async function register(email: string, password: string, username?: string): Promise<User | null> {
-  try {
-    const { data, error } = await signUp(email, password)
-    
-    if (error) {
-      console.error('Register error:', error.message)
-      return null
-    }
-    
-    if (data.user) {
-      const user: User = {
-        id: data.user.id,
-        email: data.user.email!,
-        username: username || data.user.email!.split('@')[0]
-      }
-      
-      // Salvar no localStorage para compatibilidade
-      localStorage.setItem('user', JSON.stringify(user))
-      localStorage.setItem('isAuthenticated', 'true')
-      
-      return user
-    }
-    
-    return null
-  } catch (error) {
-    console.error('Register error:', error)
-    return null
+export function register(username: string, email: string, password: string): User | null {
+  // Para simplicidade, vamos apenas aceitar qualquer registro
+  // Em um sistema real, você salvaria no banco de dados
+  const user: User = {
+    username,
+    email
   }
+  
+  // Salvar no localStorage
+  localStorage.setItem('user', JSON.stringify(user))
+  localStorage.setItem('isAuthenticated', 'true')
+  
+  return user
 }
 
-export async function logout(): Promise<void> {
-  try {
-    await signOut()
-    localStorage.removeItem('user')
-    localStorage.removeItem('isAuthenticated')
-  } catch (error) {
-    console.error('Logout error:', error)
-  }
+export function logout(): void {
+  localStorage.removeItem('user')
+  localStorage.removeItem('isAuthenticated')
 }
 
-export function getCurrentUserFromStorage(): User | null {
+export function getCurrentUser(): User | null {
   if (typeof window === 'undefined') return null
   
   const isAuthenticated = localStorage.getItem('isAuthenticated')
@@ -96,14 +67,4 @@ export function getCurrentUserFromStorage(): User | null {
 export function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false
   return localStorage.getItem('isAuthenticated') === 'true'
-}
-
-// Função para verificar autenticação com Supabase
-export async function checkSupabaseAuth(): Promise<boolean> {
-  try {
-    const user = await getCurrentUser()
-    return !!user
-  } catch {
-    return false
-  }
 }
