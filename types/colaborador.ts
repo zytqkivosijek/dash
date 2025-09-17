@@ -33,6 +33,7 @@ export interface Colaborador {
   banco?: string
   agencia?: string
   conta?: string
+  foto?: string
   status: 'Ativo' | 'Inativo' | 'Em experiência'
 }
 

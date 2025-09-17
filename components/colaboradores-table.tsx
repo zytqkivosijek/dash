@@ -70,12 +70,27 @@ export function ColaboradoresTable({ colaboradores, onViewProfile, onDelete }: C
           {colaboradores.map((colaborador) => (
             <TableRow key={colaborador.id}>
               <TableCell>
-                <button
-                  onClick={() => onViewProfile(colaborador)}
-                  className="font-medium text-primary hover:underline text-left"
-                >
-                  {colaborador.nome}
-                </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                    {colaborador.foto ? (
+                      <img
+                        src={colaborador.foto}
+                        alt={colaborador.nome}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center text-primary font-semibold text-sm">
+                        {colaborador.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onViewProfile(colaborador)}
+                    className="font-medium text-primary hover:underline text-left"
+                  >
+                    {colaborador.nome}
+                  </button>
+                </div>
               </TableCell>
               <TableCell>
                 <div>

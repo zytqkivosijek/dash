@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { IconUpload } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -118,6 +119,7 @@ export function ColaboradorFormModal({ isOpen, onClose, onSubmit }: ColaboradorF
   const resetForm = () => {
     setFormData({
       nome: '',
+      foto: '',
       cpfCnpj: '',
       rg: '',
       dataNascimento: '',
@@ -149,6 +151,20 @@ export function ColaboradorFormModal({ isOpen, onClose, onSubmit }: ColaboradorF
       conta: '',
       status: 'Ativo'
     })
+    setFotoFile(null)
+    setFotoPreview('')
+  }
+
+  const handleFotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setFotoFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setFotoPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   return (
@@ -175,6 +191,53 @@ export function ColaboradorFormModal({ isOpen, onClose, onSubmit }: ColaboradorF
           </TabsList>
 
           <TabsContent value="pessoais" className="space-y-4">
+            <div className="flex items-center gap-6 p-4 border rounded-lg bg-muted/20">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                {fotoPreview ? (
+                  <img
+                    src={fotoPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center text-primary font-bold text-lg">
+                    {formData.nome ? formData.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'}
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="foto-upload" className="cursor-pointer">
+                  <div className="flex items-center gap-2 p-3 border border-dashed rounded-md hover:bg-accent transition-colors">
+                    <IconUpload className="w-4 h-4" />
+                    <span className="text-sm">
+                      {fotoPreview ? 'Alterar foto do colaborador' : 'Fazer upload da foto do colaborador'}
+                    </span>
+                  </div>
+                </Label>
+                <input
+                  id="foto-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFotoUpload}
+                />
+                {fotoPreview && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => {
+                      setFotoFile(null)
+                      setFotoPreview('')
+                    }}
+                  >
+                    Remover foto
+                  </Button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="nome">Nome Completo *</Label>
