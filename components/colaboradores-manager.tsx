@@ -62,14 +62,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Tabs,
   TabsContent,
@@ -335,6 +327,8 @@ export function ColaboradoresManager() {
 
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [selectedColaborador, setSelectedColaborador] = React.useState<Colaborador | null>(null)
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false)
+  const [selectedColaborador, setSelectedColaborador] = React.useState<Colaborador | null>(null)
   const [isProfileOpen, setIsProfileOpen] = React.useState(false)
   const [isEditing, setIsEditing] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState('')
@@ -440,6 +434,11 @@ export function ColaboradoresManager() {
     setColaboradores([...colaboradores, novoColaborador])
     resetForm()
     setIsAddDialogOpen(false)
+  }
+
+  const handleViewProfile = (colaborador: Colaborador) => {
+    setSelectedColaborador(colaborador)
+    setIsProfileModalOpen(true)
   }
 
   const handleDeleteColaborador = (colaboradorId: number) => {
