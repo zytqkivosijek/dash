@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { IconX, IconEdit, IconSave, IconCancel } from '@tabler/icons-react'
+import { IconX, IconEdit, IconCheck, IconCancel } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -76,7 +76,7 @@ export function ColaboradorProfileModal({
               {isEditing ? (
                 <>
                   <Button size="sm" onClick={() => setIsEditing(false)}>
-                    <IconSave className="w-4 h-4 mr-1" />
+                    <IconCheck className="w-4 h-4 mr-1" />
                     Salvar
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
