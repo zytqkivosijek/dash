@@ -17,6 +17,8 @@ export function AuthForm({
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState('')
+  const [passwordError, setPasswordError] = React.useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = React.useState('')
   const [success, setSuccess] = React.useState('')
 
   React.useEffect(() => {
@@ -58,6 +60,8 @@ export function AuthForm({
     e.preventDefault()
     setIsLoading(true)
     setError('')
+    setPasswordError('')
+    setConfirmPasswordError('')
     setSuccess('')
 
     const formData = new FormData(e.currentTarget)
@@ -66,14 +70,16 @@ export function AuthForm({
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
 
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem')
+    // Validate password length
+    if (password.length < 6) {
+      setPasswordError('A senha deve ter pelo menos 6 caracteres')
       setIsLoading(false)
       return
     }
 
-    if (password.length < 4) {
-      setError('A senha deve ter pelo menos 4 caracteres')
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('As senhas não coincidem')
       setIsLoading(false)
       return
     }
@@ -195,7 +201,11 @@ export function AuthForm({
                     placeholder="Sua senha"
                     required
                     disabled={isLoading}
+                    className={passwordError ? 'border-red-500' : ''}
                   />
+                  {passwordError && (
+                    <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-confirm-password">Confirmar Senha</Label>
@@ -206,7 +216,11 @@ export function AuthForm({
                     placeholder="Confirme sua senha"
                     required
                     disabled={isLoading}
+                    className={confirmPasswordError ? 'border-red-500' : ''}
                   />
+                  {confirmPasswordError && (
+                    <p className="text-sm text-red-500 mt-1">{confirmPasswordError}</p>
+                  )}
                 </div>
                 
                 {error && (
