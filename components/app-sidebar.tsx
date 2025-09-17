@@ -53,6 +53,11 @@ const data = {
       icon: IconReport,
     },
     {
+      title: "Registro de Custos",
+      url: "/registro-custos",
+      icon: IconListDetails,
+    },
+    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,
