@@ -1,4 +1,5 @@
 import { localAuth } from './auth-local'
+import { supabase } from './supabase'
 
 export interface User {
   id: string
@@ -26,6 +27,7 @@ export async function register(email: string, password: string, username?: strin
 
 export async function logout(): Promise<void> {
   try {
+    await supabase.auth.signOut()
     await localAuth.logout()
   } catch (error) {
     console.error('Logout error:', error)
@@ -42,7 +44,14 @@ export function isAuthenticated(): boolean {
   return localAuth.isAuthenticated()
 }
 
-// Função para verificar autenticação
-export async function checkAuth(): Promise<boolean> {
-  return localAuth.isAuthenticated()
+export async function checkSupabaseAuth(): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    return !!user
+  } catch (error) {
+    console.error('Supabase auth check error:', error)
+    return false
+  }
 }
+
+// Função para verificar autenticação
