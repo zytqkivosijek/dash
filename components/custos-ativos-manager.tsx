@@ -89,10 +89,19 @@ export function CustosAtivosManager() {
   const loadCosts = async () => {
     setIsLoading(true)
     try {
+      // Verificar se o usuário está autenticado antes de carregar
+      const user = await getCurrentUser()
+      if (!user) {
+        console.error('User not authenticated')
+        setCosts([])
+        return
+      }
+      
       const data = await getCosts()
       setCosts(data)
     } catch (error) {
       console.error('Error loading costs:', error)
+      setCosts([])
     } finally {
       setIsLoading(false)
     }

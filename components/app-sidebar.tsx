@@ -43,6 +43,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Teste Supabase",
+      url: "/test-supabase",
+      icon: IconDatabase,
+    },
+    {
       title: "Contas Ativas",
       url: "/contas-ativas",
       icon: IconDatabase,

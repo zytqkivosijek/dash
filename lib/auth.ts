@@ -110,6 +110,18 @@ export function isAuthenticated(): boolean {
 export async function checkSupabaseAuth(): Promise<boolean> {
   try {
     const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user) {
+      // Sincronizar com localStorage se usuário está autenticado no Supabase
+      const localUser: User = {
+        id: user.id,
+        email: user.email!,
+        username: user.user_metadata?.username || user.email?.split('@')[0]
+      }
+      localStorage.setItem('user', JSON.stringify(localUser))
+      localStorage.setItem('isAuthenticated', 'true')
+    }
+    
     return !!user
   } catch (error) {
     console.error('Supabase auth check error:', error)

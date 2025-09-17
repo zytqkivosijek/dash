@@ -86,10 +86,19 @@ export function ContasAtivasManager() {
   const loadAccounts = async () => {
     setIsLoading(true)
     try {
+      // Verificar se o usuário está autenticado antes de carregar
+      const user = await getCurrentUser()
+      if (!user) {
+        console.error('User not authenticated')
+        setAccounts([])
+        return
+      }
+      
       const data = await getAccounts()
       setAccounts(data)
     } catch (error) {
       console.error('Error loading accounts:', error)
+      setAccounts([])
     } finally {
       setIsLoading(false)
     }

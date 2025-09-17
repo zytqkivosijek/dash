@@ -4,6 +4,11 @@ import { Database } from '@/types/database'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://oabmoptbhwqzpwxbnskk.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hYm1vcHRiaHdxenB3eGJuc2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNzIwOTIsImV4cCI6MjA3MzY0ODA5Mn0.mWohmhZyFvMTCyYAU14R_1jw7qyy7Sh3_iDOs1ZRKx8'
 
+// Verificar se as variáveis estão definidas
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase environment variables are missing!')
+}
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Helper para verificar se o usuário está autenticado
