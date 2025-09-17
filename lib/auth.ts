@@ -9,12 +9,21 @@ export interface User {
 
 export async function login(email: string, password: string): Promise<User | null> {
   try {
+    // Limpar dados antigos antes do login
+    localStorage.removeItem('user')
+    localStorage.removeItem('isAuthenticated')
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
-    if (data.user && !error) {
+    if (error) {
+      console.error('Supabase login error:', error.message)
+      return null
+    }
+
+    if (data.user) {
       const user: User = {
         id: data.user.id,
         email: data.user.email!,
@@ -26,8 +35,6 @@ export async function login(email: string, password: string): Promise<User | nul
       
       return user
     }
-    
-    console.error('Supabase login error:', error)
     return null
   } catch (error) {
     console.error('Login error:', error)
@@ -37,17 +44,27 @@ export async function login(email: string, password: string): Promise<User | nul
 
 export async function register(email: string, password: string, username?: string): Promise<User | null> {
   try {
+    // Limpar dados antigos antes do registro
+    localStorage.removeItem('user')
+    localStorage.removeItem('isAuthenticated')
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: undefined, // Desabilitar confirmação por email
         data: {
           username: username || email.split('@')[0]
         }
       }
     })
 
-    if (data.user && !error) {
+    if (error) {
+      console.error('Supabase register error:', error.message)
+      return null
+    }
+
+    if (data.user) {
       const user: User = {
         id: data.user.id,
         email: data.user.email!,
@@ -59,8 +76,6 @@ export async function register(email: string, password: string, username?: strin
       
       return user
     }
-    
-    console.error('Supabase register error:', error)
     return null
   } catch (error) {
     console.error('Register error:', error)

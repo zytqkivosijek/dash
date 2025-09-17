@@ -37,6 +37,12 @@ export function AuthForm({
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
+    if (!email || !password) {
+      setError('Por favor, preencha email e senha')
+      setIsLoading(false)
+      return
+    }
+
     try {
       const user = await login(email, password)
       
@@ -46,10 +52,11 @@ export function AuthForm({
           router.push('/dashboard')
         }, 1000)
       } else {
-        setError('Credenciais inválidas. Verifique email e senha.')
+        setError('Credenciais inválidas. Verifique email e senha ou crie uma nova conta.')
       }
     } catch (err) {
-      setError('Erro ao fazer login. Tente novamente.')
+      console.error('Login error:', err)
+      setError('Erro ao fazer login. Verifique suas credenciais ou tente criar uma conta.')
     } finally {
       setIsLoading(false)
     }
@@ -66,14 +73,20 @@ export function AuthForm({
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
 
+    if (!email || !password || !confirmPassword) {
+      setError('Por favor, preencha todos os campos')
+      setIsLoading(false)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('As senhas não coincidem')
       setIsLoading(false)
       return
     }
 
-    if (password.length < 4) {
-      setError('A senha deve ter pelo menos 4 caracteres')
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres')
       setIsLoading(false)
       return
     }
@@ -82,15 +95,16 @@ export function AuthForm({
       const user = await register(email, password)
       
       if (user) {
-        setSuccess('Conta criada com sucesso!')
+        setSuccess('Conta criada com sucesso! Redirecionando...')
         setTimeout(() => {
           router.push('/dashboard')
         }, 1000)
       } else {
-        setError('Erro ao criar conta. Tente novamente.')
+        setError('Erro ao criar conta. Este email pode já estar em uso.')
       }
     } catch (err) {
-      setError('Erro ao criar conta. Tente novamente.')
+      console.error('Register error:', err)
+      setError('Erro ao criar conta. Verifique os dados e tente novamente.')
     } finally {
       setIsLoading(false)
     }
@@ -109,7 +123,7 @@ export function AuthForm({
             <CardHeader className="text-center">
               <CardTitle>Fazer Login</CardTitle>
               <CardDescription>
-                Entre com suas credenciais para acessar o sistema
+                Entre com suas credenciais ou crie uma nova conta
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -123,6 +137,7 @@ export function AuthForm({
                     placeholder="seu@email.com"
                     required
                     disabled={isLoading}
+                    autoComplete="email"
                   />
                 </div>
                 <div className="space-y-2">
@@ -131,9 +146,10 @@ export function AuthForm({
                     id="login-password"
                     name="password"
                     type="password"
-                    placeholder="Sua senha"
+                    placeholder="Sua senha (mín. 6 caracteres)"
                     required
                     disabled={isLoading}
+                    autoComplete="current-password"
                   />
                 </div>
                 
@@ -162,7 +178,7 @@ export function AuthForm({
             <CardHeader className="text-center">
               <CardTitle>Criar Conta</CardTitle>
               <CardDescription>
-                Preencha os dados para criar uma nova conta
+                Crie uma nova conta para acessar o sistema
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -176,17 +192,19 @@ export function AuthForm({
                     placeholder="seu@email.com"
                     required
                     disabled={isLoading}
+                    autoComplete="email"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="register-password">Senha</Label>
+                  <Label htmlFor="register-password">Senha (mín. 6 caracteres)</Label>
                   <Input
                     id="register-password"
                     name="password"
                     type="password"
-                    placeholder="Sua senha"
+                    placeholder="Crie uma senha segura"
                     required
                     disabled={isLoading}
+                    autoComplete="new-password"
                   />
                 </div>
                 <div className="space-y-2">
@@ -198,6 +216,7 @@ export function AuthForm({
                     placeholder="Confirme sua senha"
                     required
                     disabled={isLoading}
+                    autoComplete="new-password"
                   />
                 </div>
                 
