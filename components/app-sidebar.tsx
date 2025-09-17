@@ -68,6 +68,11 @@ const data = {
       icon: IconListDetails,
     },
     {
+      title: "Documentos e Acessos",
+      url: "/documentos-acessos",
+      icon: IconFileDescription,
+    },
+    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,
