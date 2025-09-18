@@ -43,6 +43,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Onboarding",
+      url: "/onboarding",
+      icon: IconUsers,
+    },
+    {
       title: "Contas Ativas",
       url: "/contas-ativas",
       icon: IconDatabase,
