@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { IconPlay, IconCheck, IconClock, IconBuilding } from '@tabler/icons-react'
+import { IconPlayerPlay, IconCheck, IconClock, IconBuilding } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -67,7 +67,7 @@ export function OnboardingVideo({ onComplete }: OnboardingVideoProps) {
                     onClick={handlePlayVideo}
                     className="bg-white/90 text-black hover:bg-white"
                   >
-                    <IconPlay className="w-8 h-8 mr-2" />
+                    <IconPlayerPlay className="w-8 h-8 mr-2" />
                     Assistir Apresentação
                   </Button>
                 ) : videoCompleted ? (
